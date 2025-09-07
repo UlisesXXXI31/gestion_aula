@@ -1,21 +1,21 @@
 {
-    "name": "Gestor de Notas de Clase",
-    "short_name": "NotasClase",
-    "description": "Una aplicación para gestionar las notas y el comportamiento de los alumnos.",
-    "start_url": "./index.html",
-    "display": "standalone",
-    "background_color": "#f4f7f6",
-    "theme_color": "#2196F3",
-    "icons": [
-        {
-            "src": "assets/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "assets/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "AULAGESTION",
+  "short_name": "Aula",
+  "icons": [
+    {
+      "src": "/gestion_aula/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/gestion_aula/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2196f3",
+  "background_color": "#000000",
+  "display": "standalone",
+  "scope": ".",
+  "start_url": "."
 }
