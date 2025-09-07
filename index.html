@@ -5,34 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Notas - PWA</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-     <link rel="apple-touch-icon" sizes="180x180" href="/gestion_aula/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/gestion_aula//favicon-32x32.png">
-   <link rel="icon" type="image/png" sizes="16x16" href="/gestion_aula//favicon-16x16.png">
-   <link rel="manifest" href="gestion_aula//site.webmanifest"> 
+    
+    <!-- Rutas ajustadas para el subdirectorio /gestion_aula/ -->
+    <link rel="manifest" href="/gestion_aula/manifest.json"> 
+    <link rel="apple-touch-icon" sizes="180x180" href="/gestion_aula/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/gestion_aula/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/gestion_aula/favicon-16x16.png">
+    <!-- Si tienes un site.webmanifest separado y quieres usarlo, asegúrate de que la ruta sea correcta -->
+    <!-- <link rel="manifest" href="/gestion_aula/site.webmanifest"> -->
+    
     <meta name="theme-color" content="#2196F3"/> <!-- Color de la barra de direcciones en Android -->
 </head>
 <body>
     <header>
-     <img src="/gestion_aula/eis.jpg" alt="Gestor de Notas de Clase Logo" style="width: 120px; height: 120px;">   
-    <h1>Gestor de Notas de Clase</h1>
-    <div class="controls">
-        <select id="courseSelector">
-            <option value="">Seleccionar Curso</option>
-            <option value="primaria">Primaria</option>
-            <option value="secundaria">Secundaria</option>
-        </select>
-        <select id="classSelector" disabled>
-            <option value="">Seleccionar Clase</option>
-        </select>
-        <button id="addClassBtn">Nueva Clase</button>
-        <button id="addStudentBtn">Añadir Alumno</button>
-        <!-- En tu HTML, por ejemplo, dentro de la sección .controls o similar -->
-        <button id="exportStudentsBtn">Exportar Alumnos a Excel</button>
-    </div>
-</header>
+        <img src="/gestion_aula/eis.jpg" alt="Gestor de Notas de Clase Logo" style="width: 120px; height: 120px;">   
+        <h1>Gestor de Notas de Clase</h1>
+        <div class="controls">
+            <select id="courseSelector">
+                <option value="">Seleccionar Curso</option>
+                <option value="primaria">Primaria</option>
+                <option value="secundaria">Secundaria</option>
+            </select>
+            <select id="classSelector" disabled>
+                <option value="">Seleccionar Clase</option>
+            </select>
+            <button id="addClassBtn">Nueva Clase</button>
+            <button id="addStudentBtn">Añadir Alumno</button>
+            <button id="exportStudentsBtn">Exportar Alumnos a Excel</button>
+        </div>
+    </header>
 
-<main>
+    <main>
+        <table id="gradesTable">
+            <thead>
+                <tr>
+                    <th>Nombre Alumno</th>
+                    <th>Positivos</th>
+                    <th>Negativos</th>
+                    <th>Nota Final Global</th>
+                    <th>1ª Evaluación</th>
+                    <th>2ª Evaluación</th>
+                    <th>3ª Evaluación (Grado 12)</th> 
+                    <th>Nota Final Curso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <!-- ¡IMPORTANTE! Tu JS busca 'gradesTable tbody', así que este <tbody> debe existir -->
+            <tbody>
+                <!-- Las filas de alumnos se renderizarán aquí con JavaScript -->
+            </tbody>
+        </table>
+    </main>
+
+    <!-- *************************************************************** -->
+    <!-- MODALES: REUBICADOS FUERA DE <main> Y <table>, JUSTO ANTES DE </body> -->
+    <!-- *************************************************************** -->
+
     <!-- Modal para añadir nueva clase -->
     <div id="addClassModal" class="modal">
         <div class="modal-content">
@@ -48,7 +76,7 @@
         </div>
     </div>
 
-    <!-- Modal para añadir alumno (ya lo tenías, asegúrate de que esté después del nuevo modal si sigues el orden) -->
+    <!-- Modal para añadir alumno -->
     <div id="addStudentModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -58,27 +86,11 @@
         </div>
     </div>
 
-        <table id="gradesTable">
-    <thead>
-        <tr>
-            <th>Nombre Alumno</th>
-            <th>Positivos</th>
-            <th>Negativos</th>
-            <th>Nota Final Global</th>
-            <th>1ª Evaluación</th>
-            <th>2ª Evaluación</th>
-            <!-- NUEVAS COLUMNAS AQUÍ -->
-            <th>3ª Evaluación (Grado 12)</th> 
-            <th>Nota Final Curso</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-
-    <!-- Nuevo Modal para Detalles del Alumno y Gestión de Grados -->
+    <!-- Modal para Detalles del Alumno y Gestión de Grados -->
     <div id="studentDetailModal" class="modal">
-        <div class="modal-content large-modal"> <!-- Clase para un modal más grande -->
+        <div class="modal-content large-modal">
             <span class="close-button">&times;</span>
-            <h2 id="studentDetailName"></h2>
+            <h2 id="studentDetailName">Detalles del Alumno</h2>
             
             <div class="student-summary">
                 <p>Positivos: <span id="detailPositives" class="positive-display">0</span></p>
@@ -86,27 +98,19 @@
                 <p>Nota Final Global: <span id="detailFinalGlobal" class="final-grade">N/A</span></p>
                 <p>1ª Evaluación: <span id="detailEval1" class="final-grade">N/A</span></p>
                 <p>2ª Evaluación: <span id="detailEval2" class="final-grade">N/A</span></p>
+                <!-- Nuevos campos para la 3ª Evaluación y Nota Final de Curso -->
+                <p>3ª Evaluación (Grado 12): <span id="detailEval3" class="final-grade">N/A</span></p>
+                <p>Nota Final Curso: <span id="detailFinalCourse" class="final-grade">N/A</span></p>
+                
                 <button id="addGradeBtn">Añadir Grado</button>
             </div>
-            <!-- En tu HTML, dentro del studentDetailModal, donde tengas los detalles de notas -->
-   <div class="modal-content">
-    <span class="close-button">&times;</span>
-    <h2 id="studentDetailName">Detalles del Alumno</h2>
-    <p>Positivos: <span id="detailPositives">0</span></p>
-    <p>Negativos: <span id="detailNegatives">0</span></p>
-    <p>Nota Final Global (Media de todos los grados): <span id="detailFinalGlobal">N/A</span></p>
-    <p>1ª Evaluación: <span id="detailEval1">N/A</span></p>
-    <p>
-    </div>
 
             <h3>Grados del Alumno:</h3>
             <div id="gradesContainer">
-                <!-- Los grados se cargarán aquí -->
+                <!-- Los grados individuales se cargarán aquí con JavaScript -->
             </div>
-            
         </div>
-        
-     
+    </div>
 
     <!-- Modal para añadir/editar Grado -->
     <div id="gradeModal" class="modal">
@@ -114,7 +118,7 @@
             <span class="close-button">&times;</span>
             <h2 id="gradeModalTitle">Añadir/Editar Grado</h2>
             <input type="number" id="gradeNumber" placeholder="Número de Grado (ej: 1)" min="1" required>
-            <input type="text" id="gradeName" placeholder="Nombre del Grado (opcional)" >
+            <input type="text" id="gradeName" placeholder="Nombre del Grado (opcional)">
             <p>Nota Trabajo Clase (0-10): <input type="number" min="0" max="10" step="0.01" value="0" id="gradeClasswork"></p>
             <p>Nota Comportamiento (0-10): <input type="number" min="0" max="10" step="0.01" value="0" id="gradeBehavior"></p>
             <p>Nota Goethe (0-10): <input type="number" min="0" max="10" step="0.01" value="0" id="gradeGoethe"></p>
@@ -122,8 +126,6 @@
             <button id="saveGradeBtn">Guardar Grado</button>
         </div>
     </div>
-
-</main>
 
     <script src="app.js"></script>
 </body>
