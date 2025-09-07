@@ -88,6 +88,16 @@
                 <p>2ª Evaluación: <span id="detailEval2" class="final-grade">N/A</span></p>
                 <button id="addGradeBtn">Añadir Grado</button>
             </div>
+            <!-- En tu HTML, dentro del studentDetailModal, donde tengas los detalles de notas -->
+   <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <h2 id="studentDetailName">Detalles del Alumno</h2>
+    <p>Positivos: <span id="detailPositives">0</span></p>
+    <p>Negativos: <span id="detailNegatives">0</span></p>
+    <p>Nota Final Global (Media de todos los grados): <span id="detailFinalGlobal">N/A</span></p>
+    <p>1ª Evaluación: <span id="detailEval1">N/A</span></p>
+    <p>
+    </div>
 
             <h3>Grados del Alumno:</h3>
             <div id="gradesContainer">
@@ -95,7 +105,8 @@
             </div>
             
         </div>
-    </div>
+        
+     
 
     <!-- Modal para añadir/editar Grado -->
     <div id="gradeModal" class="modal">
