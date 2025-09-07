@@ -1,0 +1,435 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+header {
+    background-color: #2196F3;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+main {
+    padding: 20px;
+    overflow-x: auto; /* Permite scroll horizontal en tablas grandes */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+}
+
+th {
+    background-color: #e0e0e0;
+    font-weight: bold;
+    color: #555;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Estilos específicos para las notas editables */
+td input[type="number"],
+td .positive-btn,
+td .negative-btn {
+    width: 60px; /* Ancho fijo para las celdas de nota */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.positive-count, .negative-count {
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.positive-btn {
+    background-color: #8BC34A; /* Verde para positivo */
+    margin-right: 5px;
+}
+.positive-btn:hover {
+    background-color: #7CB342;
+}
+
+.negative-btn {
+    background-color: #FF7043; /* Rojo para negativo */
+    margin-left: 5px;
+}
+.negative-btn:hover {
+    background-color: #F4511E;
+}
+
+.positive-display {
+    color: #4CAF50;
+    font-weight: bold;
+}
+.negative-display {
+    color: #F44336;
+    font-weight: bold;
+}
+
+.final-grade {
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.delete-btn {
+    background-color: #F44336;
+    margin-left: 10px;
+}
+.delete-btn:hover {
+    background-color: #D32F2F;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.modal.active {
+    display: flex; /* Show the modal */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more specific, e.g. 50% */
+    max-width: 500px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #2196F3;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modal-content input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+#saveStudentBtn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    th, td {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+}
+/* Estilos para los botones de control de positivos/negativos */
+.count-btn {
+    width: 30px; /* Tamaño más pequeño para los botones de +/- */
+    height: 30px;
+    padding: 0;
+    font-size: 1.1em;
+    line-height: 1; /* Centrar el texto */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%; /* Hacerlos redondos */
+    margin: 0 3px;
+    vertical-align: middle; /* Alinearlos con el texto */
+}
+
+.positive-control-btn {
+    background-color: #4CAF50; /* Verde */
+}
+
+.positive-control-btn:hover {
+    background-color: #45a049;
+}
+
+.negative-control-btn {
+    background-color: #F44336; /* Rojo */
+}
+
+.negative-control-btn:hover {
+    background-color: #D32F2F;
+}
+
+.positive-count,
+.negative-count {
+    min-width: 25px; /* Asegura que el número no cambie el ancho de la celda */
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Ajustes para las celdas que contienen los controles */
+.positives-cell,
+.negatives-cell {
+    text-align: center;
+    white-space: nowrap; /* Evita que los botones y el número se rompan de línea */
+}
+/* Estilos para los selectores y botones de control en el header */
+.controls {
+    display: flex;
+    gap: 10px; /* Espacio entre elementos */
+    align-items: center;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.controls select,
+.controls button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 0.9em;
+    cursor: pointer;
+    background-color: white;
+    color: #333;
+}
+
+.controls select:disabled {
+    background-color: #eee;
+    cursor: not-allowed;
+}
+
+/* Estilos para los inputs y selectores dentro del modal de añadir clase */
+#addClassModal select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Asegúrate de que los botones del header tengan el mismo estilo base si es necesario */
+header button {
+    background-color: #4CAF50; /* Verde para los botones principales del header */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+header button:hover {
+    background-color: #45a049;
+}
+
+/* Para el botón de "Nueva Clase" */
+#addClassBtn {
+    background-color: #007bff; /* Un azul diferente, por ejemplo */
+}
+
+#addClassBtn:hover {
+    background-color: #0056b3;
+}
+/* Para hacer el modal de detalle más grande */
+.large-modal {
+    max-width: 900px; /* O el tamaño que consideres adecuado */
+    width: 90%;
+}
+
+.student-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e3f2fd; /* Un fondo suave para el resumen */
+    border-radius: 8px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.student-summary p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.student-summary button {
+    background-color: #2196F3;
+    margin-left: auto; /* Empuja el botón a la derecha */
+}
+.student-summary button:hover {
+    background-color: #1976D2;
+}
+
+
+/* Estilos para los contenedores de grados */
+#gradesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.grade-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.grade-card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #3f51b5;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grade-card p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+.grade-card .grade-final {
+    font-weight: bold;
+    color: #e91e63;
+    font-size: 1.1em;
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+}
+
+.grade-card-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.grade-card-actions button {
+    padding: 6px 10px;
+    font-size: 0.85em;
+    border-radius: 4px;
+}
+
+.grade-card-actions .edit-grade-btn {
+    background-color: #FFC107;
+}
+.grade-card-actions .edit-grade-btn:hover {
+    background-color: #FFA000;
+}
+
+.grade-card-actions .delete-grade-btn {
+    background-color: #F44336;
+}
+.grade-card-actions .delete-grade-btn:hover {
+    background-color: #D32F2F;
+}
+
+/* Estilos para los inputs dentro del modal de grado */
+#gradeModal input[type="number"],
+#gradeModal input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+#gradeModal p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#gradeModal p input {
+    width: 80px; /* Ancho más pequeño para los inputs de notas */
+    text-align: right;
+}
