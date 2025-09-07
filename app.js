@@ -47,7 +47,7 @@ function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
 navigator.serviceWorker.register('/gestion_aula/service-worker.js', {
-    scope: '/gestion-aula/' // <-- ¡AÑADE/CORRIGE ESTA LÍNEA!
+    scope: '/gestion_aula/' // <-- ¡AÑADE/CORRIGE ESTA LÍNEA!
 })
 // ... el resto de tu .then y .catch'
             
