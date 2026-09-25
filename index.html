@@ -32,10 +32,18 @@
             <button id="addClassBtn">Nueva Clase</button>
             <button id="addStudentBtn">Añadir Alumno</button>
             <button id="exportStudentsBtn">Exportar Alumnos a Excel</button>
+            <button id="exportBackupBtn" type="button">Guardar Copia</button>
+            <button id="importBackupBtn" type="button">Restaurar Copia</button>
+            <input id="importBackupInput" type="file" accept="application/json,.json" hidden>
         </div>
     </header>
 
     <main>
+        <section class="class-toolbar" aria-label="Herramientas de la clase">
+            <label for="studentSearch">Buscar alumno</label>
+            <input id="studentSearch" type="search" placeholder="Nombre del alumno..." autocomplete="off">
+            <div id="classSummary" class="class-summary" aria-live="polite"></div>
+        </section>
         <table id="gradesTable">
             <thead>
                 <tr>
@@ -62,10 +70,10 @@
     <!-- *************************************************************** -->
 
     <!-- Modal para añadir nueva clase -->
-    <div id="addClassModal" class="modal">
+    <div id="addClassModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addClassTitle">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Añadir Nueva Clase</h2>
+            <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+            <h2 id="addClassTitle">Añadir Nueva Clase</h2>
             <select id="newClassCourseSelector">
                 <option value="">Seleccionar Curso</option>
                 <option value="primaria">Primaria</option>
@@ -77,19 +85,19 @@
     </div>
 
     <!-- Modal para añadir alumno -->
-    <div id="addStudentModal" class="modal">
+    <div id="addStudentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addStudentTitle">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Añadir Nuevo Alumno</h2>
+            <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+            <h2 id="addStudentTitle">Añadir Nuevo Alumno</h2>
             <input type="text" id="newStudentName" placeholder="Nombre del Alumno" required>
             <button id="saveStudentBtn">Guardar Alumno</button>
         </div>
     </div>
 
     <!-- Modal para Detalles del Alumno y Gestión de Grados -->
-    <div id="studentDetailModal" class="modal">
+    <div id="studentDetailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="studentDetailName">
         <div class="modal-content large-modal">
-            <span class="close-button">&times;</span>
+            <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
             <h2 id="studentDetailName">Detalles del Alumno</h2>
             
             <div class="student-summary">
@@ -113,9 +121,9 @@
     </div>
 
     <!-- Modal para añadir/editar Grado -->
-    <div id="gradeModal" class="modal">
+    <div id="gradeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="gradeModalTitle">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
             <h2 id="gradeModalTitle">Añadir/Editar Grado</h2>
             <input type="number" id="gradeNumber" placeholder="Número de Grado (ej: 1)" min="1" required>
             <input type="text" id="gradeName" placeholder="Nombre del Grado (opcional)">

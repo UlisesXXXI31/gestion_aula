@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const newStudentNameInput = document.getElementById('newStudentName');
     const saveStudentBtn = document.getElementById('saveStudentBtn');
     const exportStudentsBtn = document.getElementById('exportStudentsBtn');
+    const exportBackupBtn = document.getElementById('exportBackupBtn');
+    const importBackupBtn = document.getElementById('importBackupBtn');
+    const importBackupInput = document.getElementById('importBackupInput');
+    const studentSearch = document.getElementById('studentSearch');
+    const classSummary = document.getElementById('classSummary');
 
 
     // Elementos para la gestión de cursos/clases
@@ -112,6 +117,7 @@ registerServiceWorker();
     let currentClass = null;
     let currentStudentId = null; // ID del estudiante que estamos viendo en el modal de detalle
     let editingGradeId = null; // ID del grado que estamos editando
+    let studentSearchTerm = '';
 
     // --- Funciones de Carga y Guardado de Datos ---
     function saveAppData() {
@@ -124,6 +130,59 @@ registerServiceWorker();
             primaria: {},
             secundaria: {}
         };
+    }
+
+    function isValidBackup(data) {
+        return data && typeof data === 'object' &&
+            ['primaria', 'secundaria'].every(course =>
+                data[course] && typeof data[course] === 'object' && !Array.isArray(data[course])
+            );
+    }
+
+    function downloadBackup() {
+        const backup = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            data: appData
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `copia-gestion-aula-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function restoreBackup(file) {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            try {
+                const parsed = JSON.parse(reader.result);
+                const importedData = parsed && parsed.data ? parsed.data : parsed;
+                if (!isValidBackup(importedData)) {
+                    throw new Error('Formato no válido');
+                }
+                if (!confirm('La restauración reemplazará los datos actuales. ¿Continuar?')) return;
+
+                appData = importedData;
+                saveAppData();
+                currentCourse = null;
+                currentClass = null;
+                courseSelector.value = '';
+                classSelector.innerHTML = '<option value="">Seleccionar Clase</option>';
+                classSelector.disabled = true;
+                studentSearchTerm = '';
+                studentSearch.value = '';
+                localStorage.removeItem('lastSelectedCourse');
+                localStorage.removeItem('lastSelectedClass');
+                renderCurrentClassStudents();
+                alert('Copia restaurada correctamente.');
+            } catch (error) {
+                alert('No se pudo restaurar la copia. Comprueba que sea un archivo JSON válido.');
+            }
+        });
+        reader.readAsText(file);
     }
 
     // --- Funciones de UI y Renderizado ---
@@ -295,16 +354,37 @@ registerServiceWorker();
         `;
     }
 
+    function updateClassSummary(students) {
+        if (!classSummary) return;
+        if (!currentClass) {
+            classSummary.textContent = 'Selecciona una clase para comenzar';
+            return;
+        }
+
+        const gradedStudents = students.filter(student => calculateFinalCourseGrade(student) !== 'N/A');
+        const passedStudents = gradedStudents.filter(student =>
+            Number(calculateFinalCourseGrade(student)) >= 5
+        );
+        classSummary.textContent = `${students.length} alumno${students.length === 1 ? '' : 's'} · ` +
+            `${gradedStudents.length} con nota · ${passedStudents.length} aprobado${passedStudents.length === 1 ? '' : 's'}`;
+    }
+
     // Función para renderizar todos los estudiantes de la clase actual
     function renderCurrentClassStudents() {
         gradesTableBody.innerHTML = ''; // Limpiar tabla
 
         if (currentCourse && currentClass && appData[currentCourse][currentClass]) {
             const students = appData[currentCourse][currentClass].students;
-            students.forEach(renderStudentRow);
+            const normalizedSearch = studentSearchTerm.toLocaleLowerCase();
+            const visibleStudents = students.filter(student =>
+                student.name.toLocaleLowerCase().includes(normalizedSearch)
+            );
+            visibleStudents.forEach(renderStudentRow);
+            updateClassSummary(students);
             addStudentBtn.disabled = false;
         } else {
             addStudentBtn.disabled = true;
+            updateClassSummary([]);
         }
         if (exportStudentsBtn) {
             exportStudentsBtn.disabled = !currentClass || (currentClass && appData[currentCourse][currentClass].students.length === 0);
@@ -379,6 +459,13 @@ registerServiceWorker();
 
     classSelector.addEventListener('change', (event) => {
         currentClass = event.target.value;
+        studentSearchTerm = '';
+        studentSearch.value = '';
+        renderCurrentClassStudents();
+    });
+
+    studentSearch.addEventListener('input', (event) => {
+        studentSearchTerm = event.target.value.trim();
         renderCurrentClassStudents();
     });
 
@@ -641,7 +728,23 @@ registerServiceWorker();
         }
     });
 
+    window.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal) activeModal.classList.remove('active');
+        currentStudentId = null;
+        editingGradeId = null;
+    });
+
     // --- FUNCIONALIDAD: EXPORTAR A EXCEL (CSV) ---
+    exportBackupBtn.addEventListener('click', downloadBackup);
+    importBackupBtn.addEventListener('click', () => importBackupInput.click());
+    importBackupInput.addEventListener('change', (event) => {
+        const [file] = event.target.files;
+        if (file) restoreBackup(file);
+        event.target.value = '';
+    });
+
     if (exportStudentsBtn) { 
         exportStudentsBtn.addEventListener('click', () => {
             if (!currentCourse || !currentClass) {

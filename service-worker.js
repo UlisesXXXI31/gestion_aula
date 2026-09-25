@@ -1,12 +1,14 @@
-const CACHE_NAME = "Gestionapp-page-v1";
-const OFFLINE_URL = "/offline.html";
+const CACHE_NAME = "Gestionapp-page-v2";
+const BASE_PATH = "/gestion_aula";
+const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
 // Cache solo los esenciales para GitHub
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js'
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/style.css`,
+  `${BASE_PATH}/app.js`,
+  OFFLINE_URL
  
 ];
 
