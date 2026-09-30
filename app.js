@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const importBackupInput = document.getElementById('importBackupInput');
     const studentSearch = document.getElementById('studentSearch');
     const classSummary = document.getElementById('classSummary');
+    const saveStatus = document.getElementById('saveStatus');
+    const studentEmptyState = document.getElementById('studentEmptyState');
+    const studentEmptyMessage = document.getElementById('studentEmptyMessage');
+    const clearStudentSearchBtn = document.getElementById('clearStudentSearchBtn');
+    const archivedClassesList = document.getElementById('archivedClassesList');
+    const renameClassBtn = document.getElementById('renameClassBtn');
+    const archiveClassBtn = document.getElementById('archiveClassBtn');
 
 
     // Elementos para la gestión de cursos/clases
@@ -113,6 +120,7 @@ registerServiceWorker();
 
     // Estado global de la aplicación
     let appData = loadAppData();
+    let archivedClasses = loadArchivedClasses();
     let currentCourse = null;
     let currentClass = null;
     let currentStudentId = null; // ID del estudiante que estamos viendo en el modal de detalle
@@ -122,6 +130,8 @@ registerServiceWorker();
     // --- Funciones de Carga y Guardado de Datos ---
     function saveAppData() {
         localStorage.setItem('gradeAppV2Data', JSON.stringify(appData));
+        localStorage.setItem('gradeAppV2ArchivedClasses', JSON.stringify(archivedClasses));
+        if (saveStatus) saveStatus.textContent = 'Cambios guardados en este dispositivo';
     }
 
     function loadAppData() {
@@ -132,6 +142,15 @@ registerServiceWorker();
         };
     }
 
+    function loadArchivedClasses() {
+        try {
+            const classes = JSON.parse(localStorage.getItem('gradeAppV2ArchivedClasses') || '[]');
+            return isValidArchivedClasses(classes) ? classes : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
     function isValidBackup(data) {
         return data && typeof data === 'object' &&
             ['primaria', 'secundaria'].every(course =>
@@ -139,11 +158,21 @@ registerServiceWorker();
             );
     }
 
+    function isValidArchivedClasses(classes) {
+        return Array.isArray(classes) && classes.every(classItem =>
+            classItem && typeof classItem.id === 'string' &&
+            ['primaria', 'secundaria'].includes(classItem.course) &&
+            typeof classItem.classId === 'string' && typeof classItem.name === 'string' &&
+            Array.isArray(classItem.students)
+        );
+    }
+
     function downloadBackup() {
         const backup = {
-            version: 1,
+            version: 2,
             exportedAt: new Date().toISOString(),
-            data: appData
+            data: appData,
+            archivedClasses
         };
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -160,12 +189,14 @@ registerServiceWorker();
             try {
                 const parsed = JSON.parse(reader.result);
                 const importedData = parsed && parsed.data ? parsed.data : parsed;
-                if (!isValidBackup(importedData)) {
+                const importedArchivedClasses = parsed && parsed.data ? parsed.archivedClasses || [] : [];
+                if (!isValidBackup(importedData) || !isValidArchivedClasses(importedArchivedClasses)) {
                     throw new Error('Formato no válido');
                 }
                 if (!confirm('La restauración reemplazará los datos actuales. ¿Continuar?')) return;
 
                 appData = importedData;
+                archivedClasses = importedArchivedClasses;
                 saveAppData();
                 currentCourse = null;
                 currentClass = null;
@@ -177,6 +208,7 @@ registerServiceWorker();
                 localStorage.removeItem('lastSelectedCourse');
                 localStorage.removeItem('lastSelectedClass');
                 renderCurrentClassStudents();
+                updateArchivedClassesList();
                 alert('Copia restaurada correctamente.');
             } catch (error) {
                 alert('No se pudo restaurar la copia. Comprueba que sea un archivo JSON válido.');
@@ -205,6 +237,31 @@ registerServiceWorker();
         if (exportStudentsBtn) {
             exportStudentsBtn.disabled = !currentClass;
         }
+        renameClassBtn.disabled = !currentClass;
+        archiveClassBtn.disabled = !currentClass;
+    }
+
+    function updateArchivedClassesList() {
+        archivedClassesList.replaceChildren();
+        if (archivedClasses.length === 0) {
+            const emptyItem = document.createElement('li');
+            emptyItem.textContent = 'No hay clases archivadas.';
+            archivedClassesList.appendChild(emptyItem);
+            return;
+        }
+
+        archivedClasses.forEach(classItem => {
+            const item = document.createElement('li');
+            const label = document.createElement('span');
+            const restoreButton = document.createElement('button');
+            const courseName = classItem.course === 'primaria' ? 'Primaria' : 'Secundaria';
+            label.textContent = `${classItem.name} · ${courseName} · ${classItem.students.length} alumno${classItem.students.length === 1 ? '' : 's'}`;
+            restoreButton.type = 'button';
+            restoreButton.textContent = 'Restaurar';
+            restoreButton.dataset.archiveId = classItem.id;
+            item.append(label, restoreButton);
+            archivedClassesList.appendChild(item);
+        });
     }
 
     // Función para calcular la nota final de un *grado* específico
@@ -372,6 +429,8 @@ registerServiceWorker();
     // Función para renderizar todos los estudiantes de la clase actual
     function renderCurrentClassStudents() {
         gradesTableBody.innerHTML = ''; // Limpiar tabla
+        let emptyMessage = '';
+        let showClearSearch = false;
 
         if (currentCourse && currentClass && appData[currentCourse][currentClass]) {
             const students = appData[currentCourse][currentClass].students;
@@ -382,10 +441,22 @@ registerServiceWorker();
             visibleStudents.forEach(renderStudentRow);
             updateClassSummary(students);
             addStudentBtn.disabled = false;
+            if (students.length === 0) {
+                emptyMessage = 'Esta clase todavía no tiene alumnos. Usa “Añadir Alumno” para empezar.';
+            } else if (visibleStudents.length === 0) {
+                emptyMessage = `No hay alumnos que coincidan con “${studentSearchTerm}”.`;
+                showClearSearch = true;
+            }
         } else {
             addStudentBtn.disabled = true;
             updateClassSummary([]);
+            emptyMessage = 'Selecciona un curso y una clase para ver los alumnos.';
         }
+        studentSearch.disabled = !currentClass;
+        studentEmptyState.hidden = !emptyMessage;
+        studentEmptyMessage.textContent = emptyMessage;
+        clearStudentSearchBtn.hidden = !showClearSearch;
+        document.getElementById('gradesTable').hidden = Boolean(emptyMessage);
         if (exportStudentsBtn) {
             exportStudentsBtn.disabled = !currentClass || (currentClass && appData[currentCourse][currentClass].students.length === 0);
         }
@@ -461,7 +532,15 @@ registerServiceWorker();
         currentClass = event.target.value;
         studentSearchTerm = '';
         studentSearch.value = '';
+        updateClassSelector();
         renderCurrentClassStudents();
+    });
+
+    clearStudentSearchBtn.addEventListener('click', () => {
+        studentSearchTerm = '';
+        studentSearch.value = '';
+        renderCurrentClassStudents();
+        studentSearch.focus();
     });
 
     studentSearch.addEventListener('input', (event) => {
@@ -486,7 +565,10 @@ registerServiceWorker();
                 appData[course] = {};
             }
             const classId = className.toLowerCase().replace(/\s+/g, '-');
-            if (appData[course][classId]) {
+            const duplicateName = Object.values(appData[course]).some(classItem =>
+                classItem.name.toLocaleLowerCase() === className.toLocaleLowerCase()
+            );
+            if (appData[course][classId] || duplicateName) {
                 alert('Ya existe una clase con ese nombre en este curso.');
                 return;
             }
@@ -499,6 +581,8 @@ registerServiceWorker();
 
             currentCourse = course;
             currentClass = classId;
+            localStorage.setItem('lastSelectedCourse', currentCourse);
+            localStorage.setItem('lastSelectedClass', currentClass);
             courseSelector.value = currentCourse;
             updateClassSelector();
             renderCurrentClassStudents();
@@ -509,6 +593,89 @@ registerServiceWorker();
         } else {
             alert('Por favor, selecciona un curso e ingresa el nombre de la clase.');
         }
+    });
+
+    renameClassBtn.addEventListener('click', () => {
+        const classItem = appData[currentCourse] && appData[currentCourse][currentClass];
+        if (!classItem) return;
+
+        const newName = prompt('Escribe el nuevo nombre de la clase:', classItem.name);
+        if (newName === null) return;
+        const trimmedName = newName.trim();
+        if (!trimmedName) {
+            alert('El nombre de la clase no puede estar vacío.');
+            return;
+        }
+
+        const duplicateName = Object.entries(appData[currentCourse]).some(([classId, existingClass]) =>
+            classId !== currentClass && existingClass.name.toLocaleLowerCase() === trimmedName.toLocaleLowerCase()
+        );
+        if (duplicateName) {
+            alert('Ya existe una clase con ese nombre en este curso.');
+            return;
+        }
+
+        classItem.name = trimmedName;
+        saveAppData();
+        updateClassSelector();
+    });
+
+    archiveClassBtn.addEventListener('click', () => {
+        const classItem = appData[currentCourse] && appData[currentCourse][currentClass];
+        if (!classItem) return;
+
+        const studentCount = classItem.students.length;
+        const confirmation = `Se archivará “${classItem.name}” con ${studentCount} alumno${studentCount === 1 ? '' : 's'} y todas sus notas. Podrás restaurarla más adelante. ¿Continuar?`;
+        if (!confirm(confirmation)) return;
+
+        archivedClasses.push({
+            id: `${Date.now()}-${archivedClasses.length}`,
+            course: currentCourse,
+            classId: currentClass,
+            name: classItem.name,
+            students: classItem.students
+        });
+        delete appData[currentCourse][currentClass];
+        currentClass = null;
+        localStorage.removeItem('lastSelectedClass');
+        studentSearchTerm = '';
+        studentSearch.value = '';
+        classSelector.value = '';
+        saveAppData();
+        updateClassSelector();
+        updateArchivedClassesList();
+        renderCurrentClassStudents();
+    });
+
+    archivedClassesList.addEventListener('click', (event) => {
+        const restoreButton = event.target.closest('button[data-archive-id]');
+        if (!restoreButton) return;
+
+        const archiveIndex = archivedClasses.findIndex(classItem => classItem.id === restoreButton.dataset.archiveId);
+        if (archiveIndex < 0) return;
+        const [classItem] = archivedClasses.splice(archiveIndex, 1);
+        const classesInCourse = appData[classItem.course] || (appData[classItem.course] = {});
+        const duplicateName = Object.values(classesInCourse).some(existingClass =>
+            existingClass.name.toLocaleLowerCase() === classItem.name.toLocaleLowerCase()
+        );
+        if (classesInCourse[classItem.classId] || duplicateName) {
+            archivedClasses.splice(archiveIndex, 0, classItem);
+            alert('No se puede restaurar: ya existe una clase con ese nombre en el curso. Renómbrala o archívala primero.');
+            return;
+        }
+
+        classesInCourse[classItem.classId] = { name: classItem.name, students: classItem.students };
+        currentCourse = classItem.course;
+        currentClass = classItem.classId;
+        courseSelector.value = currentCourse;
+        localStorage.setItem('lastSelectedCourse', currentCourse);
+        localStorage.setItem('lastSelectedClass', currentClass);
+        studentSearchTerm = '';
+        studentSearch.value = '';
+        saveAppData();
+        updateClassSelector();
+        updateArchivedClassesList();
+        renderCurrentClassStudents();
     });
 
     addStudentBtn.addEventListener('click', () => {
@@ -858,6 +1025,7 @@ registerServiceWorker();
         }
     });
 
+    updateArchivedClassesList();
     renderCurrentClassStudents(); 
     if (exportStudentsBtn) {
         exportStudentsBtn.disabled = !currentClass || (currentClass && appData[currentCourse][currentClass].students.length === 0);

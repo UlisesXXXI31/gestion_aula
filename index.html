@@ -30,6 +30,8 @@
                 <option value="">Seleccionar Clase</option>
             </select>
             <button id="addClassBtn">Nueva Clase</button>
+            <button id="renameClassBtn" type="button" disabled>Renombrar Clase</button>
+            <button id="archiveClassBtn" type="button" disabled>Archivar Clase</button>
             <button id="addStudentBtn">Añadir Alumno</button>
             <button id="exportStudentsBtn">Exportar Alumnos a Excel</button>
             <button id="exportBackupBtn" type="button">Guardar Copia</button>
@@ -43,7 +45,16 @@
             <label for="studentSearch">Buscar alumno</label>
             <input id="studentSearch" type="search" placeholder="Nombre del alumno..." autocomplete="off">
             <div id="classSummary" class="class-summary" aria-live="polite"></div>
+            <span id="saveStatus" class="save-status" role="status">Datos guardados en este dispositivo</span>
         </section>
+        <details id="archivedClassesPanel" class="archived-classes-panel">
+            <summary>Clases archivadas</summary>
+            <ul id="archivedClassesList"></ul>
+        </details>
+        <div id="studentEmptyState" class="empty-state" role="status" hidden>
+            <p id="studentEmptyMessage"></p>
+            <button id="clearStudentSearchBtn" type="button" hidden>Limpiar búsqueda</button>
+        </div>
         <table id="gradesTable">
             <thead>
                 <tr>

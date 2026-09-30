@@ -1,4 +1,4 @@
-const CACHE_NAME = "Gestionapp-page-v2";
+const CACHE_NAME = "Gestionapp-page-v3";
 const BASE_PATH = "/gestion_aula";
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
@@ -22,7 +22,13 @@ self.addEventListener("install", event => {
 });
 
 self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then(cacheNames => Promise.all(
+      cacheNames
+        .filter(cacheName => cacheName.startsWith("Gestionapp-page-") && cacheName !== CACHE_NAME)
+        .map(cacheName => caches.delete(cacheName))
+    )).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {

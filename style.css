@@ -65,6 +65,60 @@ main {
     font-size: 0.95em;
 }
 
+.save-status {
+    color: #52606d;
+    font-size: 0.85em;
+}
+
+.archived-classes-panel {
+    margin-top: 16px;
+    color: #334155;
+}
+
+.archived-classes-panel summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#archivedClassesList {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+}
+
+#archivedClassesList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 640px;
+    padding: 8px 0;
+    border-bottom: 1px solid #d9e0e5;
+}
+
+#archivedClassesList button {
+    flex: 0 0 auto;
+}
+
+.empty-state {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px dashed #aab7c4;
+    border-radius: 5px;
+    color: #52606d;
+    text-align: center;
+}
+
+.empty-state p {
+    margin: 0 0 12px;
+}
+
+[hidden] {
+    display: none !important;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -236,6 +290,9 @@ td .negative-btn {
         align-items: stretch;
         flex-direction: column;
     }
+    #archivedClassesList li {
+        align-items: flex-start;
+    }
     #studentSearch {
         min-width: 0;
         width: 100%;
@@ -344,6 +401,19 @@ header button:hover {
 
 #addClassBtn:hover {
     background-color: #0056b3;
+}
+
+#archiveClassBtn {
+    background-color: #a4482a;
+}
+
+#archiveClassBtn:hover:not(:disabled) {
+    background-color: #873b24;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 /* Para hacer el modal de detalle más grande */
 .large-modal {
