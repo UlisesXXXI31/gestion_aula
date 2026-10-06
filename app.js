@@ -282,8 +282,8 @@ registerServiceWorker();
                         (goethe * columnWeight);
 
         // APLICAR EL IMPACTO DE POSITIVOS Y NEGATIVOS A CADA GRADO ESPECÍFICO
-        const positiveImpactPerGrade = 0.03; 
-        const negativeImpactPerGrade = -0.03; 
+        const positiveImpactPerGrade = 0.15; 
+        const negativeImpactPerGrade = -0.15; 
 
         if (student) { 
             baseGrade += (student.positives * positiveImpactPerGrade);
